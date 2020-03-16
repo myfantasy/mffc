@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/flate"
 	"io"
-	"log"
 	"strings"
 	"sync"
 )
@@ -90,7 +89,7 @@ func (dc *DeflateCompressor) Restore(data []byte) (res []byte, err error) {
 	}
 	var b bytes.Buffer
 	if _, err := io.CopyBuffer(&b, dc.zr, dc.buf); err != nil {
-		log.Fatal(err)
+		return res, err
 	}
 	if err := dc.zr.Close(); err != nil {
 		return res, err

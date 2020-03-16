@@ -73,7 +73,7 @@ func (fod *FileDeflateOnDisk) Clone() fh.FileProviderA {
 
 // Exists file on disk
 func (fod *FileDeflateOnDisk) Exists(path string) (bool, error) {
-	path = filepath.FromSlash(path)
+	path = filepath.FromSlash(path + fod.FileTail)
 
 	_, err := os.Stat(path)
 	if err == nil {
@@ -87,12 +87,15 @@ func (fod *FileDeflateOnDisk) Exists(path string) (bool, error) {
 // Read from disk data, flag that exists file, or error
 func (fod *FileDeflateOnDisk) Read(path string) (data []byte, e bool, err error) {
 
-	path = filepath.FromSlash(path)
+	path = filepath.FromSlash(path + fod.FileTail)
 
 	data, err = ioutil.ReadFile(path)
 
 	if err == nil {
-		return data, true, nil
+
+		data, err = fod.Compressor.Restore(data)
+
+		return data, true, err
 	} else if os.IsNotExist(err) {
 		return data, false, nil
 	}
@@ -120,22 +123,27 @@ func (fod *FileDeflateOnDisk) MkDirIfNotExists(path string) (err error) {
 
 // Write file on disk
 func (fod *FileDeflateOnDisk) Write(path string, data []byte) error {
-	path = filepath.FromSlash(path)
+	path = filepath.FromSlash(path + fod.FileTail)
 
-	return ioutil.WriteFile(path, data, fod.FilePerm)
+	d, err := fod.Compressor.Compress(data)
+	if err != nil {
+		return mdp.ErrorNew("Write fail to compress "+path, err)
+	}
+
+	return ioutil.WriteFile(path, d, fod.FilePerm)
 }
 
 // Remove file from disk
 func (fod *FileDeflateOnDisk) Remove(path string) error {
-	path = filepath.FromSlash(path)
+	path = filepath.FromSlash(path + fod.FileTail)
 
 	return os.RemoveAll(path)
 }
 
 // Rename files
 func (fod *FileDeflateOnDisk) Rename(pathOld string, pathNew string) error {
-	pathOld = filepath.FromSlash(pathOld)
-	pathNew = filepath.FromSlash(pathNew)
+	pathOld = filepath.FromSlash(pathOld + fod.FileTail)
+	pathNew = filepath.FromSlash(pathNew + fod.FileTail)
 
 	return os.Rename(pathOld, pathNew)
 }
