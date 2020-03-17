@@ -3,8 +3,6 @@
 package fh
 
 import (
-	"path/filepath"
-
 	"github.com/myfantasy/mdp"
 )
 
@@ -17,6 +15,7 @@ type FileProvider interface {
 	Write(path string, data []byte) error
 	Remove(path string) error
 	Rename(pathOld string, pathNew string) error
+	Append(path string, data []byte) error
 }
 
 // FileProviderA - file or directory create update and remove and additional methods
@@ -95,8 +94,6 @@ func FileReplace(fp FileProvider, path string, data []byte) error {
 //FileLoad load file path -> .new -> .old
 func FileLoad(fp FileProvider, path string) (data []byte, e bool, needResave bool, err error) {
 
-	path = filepath.FromSlash(path)
-
 	pathOld := path + ".old"
 	pathNew := path + ".new"
 
@@ -131,8 +128,6 @@ func FileLoad(fp FileProvider, path string) (data []byte, e bool, needResave boo
 
 //FileLoadAndFix load file path -> .new -> .old and move file to path if path is not exists
 func FileLoadAndFix(fp FileProvider, path string) (data []byte, e bool, err error) {
-
-	path = filepath.FromSlash(path)
 
 	pathOld := path + ".old"
 	pathNew := path + ".new"
@@ -170,4 +165,19 @@ func FileLoadAndFix(fp FileProvider, path string) (data []byte, e bool, err erro
 	}
 
 	return data, false, nil
+}
+
+// FileAppend append data into file universal
+func FileAppend(fp FileProvider, path string, data []byte) (err error) {
+	d, e, err := FileLoadAndFix(fp, path)
+	if err != nil {
+		return err
+	}
+
+	if !e {
+		return FileReplace(fp, path, data)
+	}
+
+	d = append(d, data...)
+	return FileReplace(fp, path, d)
 }

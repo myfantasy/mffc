@@ -4,9 +4,14 @@ import (
 	"testing"
 )
 
-func TestFileOnDisk(t *testing.T) {
-	fod := FileOnDiskSimpleCreate()
-	err := fod.MkDirIfNotExists("test")
+func TestFileDeflateOnDisk(t *testing.T) {
+	fod, err := FileDeflateOnDiskSimpleCreate()
+
+	if err != nil {
+		t.Fatal("Create", err)
+	}
+
+	err = fod.MkDirIfNotExists("test")
 	if err != nil {
 		t.Fatal("MkDirIfNotExists", err)
 	}

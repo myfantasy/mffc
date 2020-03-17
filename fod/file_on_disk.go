@@ -75,6 +75,22 @@ func (fod *FileOnDisk) Read(path string) (data []byte, e bool, err error) {
 	return data, false, err
 }
 
+// Append data to file
+func (fod *FileOnDisk) Append(path string, data []byte) error {
+
+	path = filepath.FromSlash(path)
+
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, fod.FilePerm)
+	if err != nil {
+		return err
+	}
+	_, err = f.Write(data)
+	if err1 := f.Close(); err == nil {
+		err = err1
+	}
+	return err
+}
+
 // MkDirIfNotExists make directory
 func (fod *FileOnDisk) MkDirIfNotExists(path string) (err error) {
 

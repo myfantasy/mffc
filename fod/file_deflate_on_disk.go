@@ -102,6 +102,12 @@ func (fod *FileDeflateOnDisk) Read(path string) (data []byte, e bool, err error)
 	return data, false, err
 }
 
+// Append data to file
+func (fod *FileDeflateOnDisk) Append(path string, data []byte) error {
+
+	return fh.FileAppend(fod, path, data)
+}
+
 // MkDirIfNotExists make directory
 func (fod *FileDeflateOnDisk) MkDirIfNotExists(path string) (err error) {
 
