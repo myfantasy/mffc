@@ -6,8 +6,8 @@ import (
 	"github.com/myfantasy/mdp"
 )
 
-// FileProvider - file or directory create update and remove
-type FileProvider interface {
+// FileProviderSimple - file or directory create update and remove
+type FileProviderSimple interface {
 	Exists(path string) (bool, error)
 	// data, exists file, error
 	Read(path string) (data []byte, e bool, err error)
@@ -18,19 +18,19 @@ type FileProvider interface {
 	Append(path string, data []byte) error
 }
 
-// FileProviderA - file or directory create update and remove and additional methods
-type FileProviderA interface {
-	FileProvider
+// FileProvider - file or directory create update and remove and additional methods
+type FileProvider interface {
+	FileProviderSimple
 
 	FileReplace(path string, data []byte) error
 	FileLoad(path string) (data []byte, e bool, needResave bool, err error)
 	FileLoadAndFix(path string) (data []byte, e bool, err error)
 	// clone provider
-	Clone() FileProviderA
+	Clone() FileProvider
 }
 
 // FileReplace - Create or replace file (remove .old && .new if exists -> create .new -> move current to .old -> move .new to current -> remove .old)
-func FileReplace(fp FileProvider, path string, data []byte) error {
+func FileReplace(fp FileProviderSimple, path string, data []byte) error {
 	pathOld := path + ".old"
 	pathNew := path + ".new"
 
@@ -92,7 +92,7 @@ func FileReplace(fp FileProvider, path string, data []byte) error {
 }
 
 //FileLoad load file path -> .new -> .old
-func FileLoad(fp FileProvider, path string) (data []byte, e bool, needResave bool, err error) {
+func FileLoad(fp FileProviderSimple, path string) (data []byte, e bool, needResave bool, err error) {
 
 	pathOld := path + ".old"
 	pathNew := path + ".new"
@@ -127,7 +127,7 @@ func FileLoad(fp FileProvider, path string) (data []byte, e bool, needResave boo
 }
 
 //FileLoadAndFix load file path -> .new -> .old and move file to path if path is not exists
-func FileLoadAndFix(fp FileProvider, path string) (data []byte, e bool, err error) {
+func FileLoadAndFix(fp FileProviderSimple, path string) (data []byte, e bool, err error) {
 
 	pathOld := path + ".old"
 	pathNew := path + ".new"
@@ -168,7 +168,7 @@ func FileLoadAndFix(fp FileProvider, path string) (data []byte, e bool, err erro
 }
 
 // FileAppend append data into file universal
-func FileAppend(fp FileProvider, path string, data []byte) (err error) {
+func FileAppend(fp FileProviderSimple, path string, data []byte) (err error) {
 	d, e, err := FileLoadAndFix(fp, path)
 	if err != nil {
 		return err

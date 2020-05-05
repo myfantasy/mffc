@@ -40,7 +40,7 @@ func (fod *FileOnDisk) FileLoadAndFix(path string) (data []byte, e bool, err err
 }
 
 // Clone file provider
-func (fod *FileOnDisk) Clone() fh.FileProviderA {
+func (fod *FileOnDisk) Clone() fh.FileProvider {
 	return &FileOnDisk{
 		FolderPerm: fod.FolderPerm,
 		FilePerm:   fod.FilePerm,

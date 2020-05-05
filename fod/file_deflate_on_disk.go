@@ -61,7 +61,7 @@ func (fod *FileDeflateOnDisk) FileLoadAndFix(path string) (data []byte, e bool, 
 }
 
 // Clone file provider
-func (fod *FileDeflateOnDisk) Clone() fh.FileProviderA {
+func (fod *FileDeflateOnDisk) Clone() fh.FileProvider {
 
 	return &FileDeflateOnDisk{
 		FolderPerm: fod.FolderPerm,
